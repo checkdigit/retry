@@ -44,15 +44,16 @@ try {
 
 ```
 
-### Using with [`@checkdigit/retry`](https://github.com/checkdigit/timeout)
+### Using with [`@checkdigit/timeout`](https://github.com/checkdigit/timeout)
 
 In most scenarios, it is recommended that this module is combined with
-[`@checkdigit/retry`](https://github.com/checkdigit/timeout).
+[`@checkdigit/timeout`](https://github.com/checkdigit/timeout).
 
 ```
 import retry from '@checkdigit/retry';
 import timeout from '@checkdigit/timeout';
 
+// wait up to 60 seconds on each attempt, retry on timeout
 const worker = await retry((item) => timeout((async (input) => ...work...)(item)))
 const result = await worker(someInput);
 ```
