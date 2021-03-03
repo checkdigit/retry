@@ -24,15 +24,15 @@ not the case, do not use this module.**
 import retry from '@checkdigit/retry';
 
 // do some simple work, with the default of 8 retries and a wait ratio of 100.
-const worker = await retry(async (item: string) => { ...idempotent network requests... });
+const worker = retry(async (item: string) => { ...idempotent network requests... });
 const result = await worker(someInput);
 
 // do some simple work, with a wait ratio of 0.  This means retries occur immediately, useful for test scenarios.
-const testWorker = await retry(async (item: string) => { ...idempotent network requests... }, { waitRatio: 0 });
+const testWorker = retry(async (item: string) => { ...idempotent network requests... }, { waitRatio: 0 });
 const testResult = await testWorker(someTestInput);
 
 // catch a RetryError
-const errorWorker = await retry(async (item: string) => { ...repeated failures... }, { waitRatio: 0 });
+const errorWorker = retry(async (item: string) => { ...repeated failures... }, { waitRatio: 0 });
 try {
   await errorWorker(someTestInput);
 } catch (error) {
@@ -42,6 +42,19 @@ try {
   }
 }
 
+```
+
+### Using with [`@checkdigit/retry`](https://github.com/checkdigit/timeout)
+
+In most scenarios, it is recommended that this module is combined with
+[`@checkdigit/retry`](https://github.com/checkdigit/timeout).
+
+```
+import retry from '@checkdigit/retry';
+import timeout from '@checkdigit/timeout';
+
+const worker = await retry((item) => timeout((async (input) => ...work...)(item)))
+const result = await worker(someInput);
 ```
 
 ## License
