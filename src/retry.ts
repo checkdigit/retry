@@ -33,11 +33,11 @@ export class RetryError extends Error {
 }
 
 /**
- * Item processor, with retry logic
+ * Implementation of recommended Check Digit retry algorithm.
  *
  * @param retryable
  * @param waitRatio how much to multiply 2^attempts by
- * @param maximumRetries maximum number of retries before throwing a RetryError
+ * @param retries maximum number of retries before throwing a RetryError
  */
 export default function <Input, Output>(
   retryable: (item: Input) => Promise<Output>,
