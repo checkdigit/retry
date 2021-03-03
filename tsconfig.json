@@ -1,8 +1,10 @@
 {
-  "extends": "@checkdigit/typescript",
+  "extends": "@checkdigit/typescript-config",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "build"
+    "outDir": "build",
+    "target": "es2020",
+    "noPropertyAccessFromIndexSignature": true
   },
   "exclude": [
     "node_modules",

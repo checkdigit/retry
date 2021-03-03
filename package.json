@@ -1,42 +1,47 @@
 {
-  "name": "@checkdigit/library-template",
+  "name": "@checkdigit/retry",
   "version": "0.0.1",
-  "description": "A short description of the intended use of the library",
+  "description": "Implementation of the standard Check Digit retry algorithm",
   "typings": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "prettier": "@checkdigit/prettier-config",
   "engines": {
-    "node": ">=12.18",
-    "npm": ">=6.14"
+    "node": ">=14"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/checkdigit/library-template.git"
+    "url": "git+https://github.com/checkdigit/retry.git"
   },
   "author": "Check Digit, LLC",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/checkdigit/library-template/issues"
+    "url": "https://github.com/checkdigit/retry/issues"
   },
-  "homepage": "https://github.com/checkdigit/library-template#readme",
+  "homepage": "https://github.com/checkdigit/retry#readme",
+  "dependencies": {
+    "debug": "^4.3.1"
+  },
   "devDependencies": {
-    "@checkdigit/eslint-config": "3.3.5",
+    "@checkdigit/eslint-config": "^3.4.0",
     "@checkdigit/prettier-config": "^1.0.1",
-    "@checkdigit/publish": "^1.0.14",
-    "@checkdigit/typescript": "^3.9.3",
-    "@types/jest": "^26.0.0",
-    "eslint": "^7.3.0",
-    "jest": "^26.0.1",
-    "prettier": "^2.0.5",
+    "@checkdigit/publish": "^1.0.18",
+    "@checkdigit/typescript-config": "1.0.5",
+    "@types/debug": "^4.1.5",
+    "@types/jest": "^26.0.20",
+    "eslint": "^7.21.0",
+    "jest": "^26.6.3",
+    "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "ts-jest": "^26.1.1",
-    "ts-node": "^8.10.2"
+    "ts-jest": "^26.5.2",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.2"
   },
   "jest": {
     "collectCoverage": true,
     "preset": "ts-jest",
     "testPathIgnorePatterns": [
       "<rootDir>/build/",
+      "<rootDir>/coverage",
       "<rootDir>/node_modules/"
     ]
   },
@@ -49,6 +54,6 @@
     "lint:fix": "eslint -f unix 'src/**/*.ts' --fix",
     "prettier": "prettier --list-different 'src/**/*.ts'",
     "prettier:fix": "prettier --write 'src/**/*.ts'",
-    "test": "jest && npm run lint && npm run prettier"
+    "test": "tsc && jest && npm run lint && npm run prettier"
   }
 }
