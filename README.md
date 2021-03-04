@@ -1,36 +1,63 @@
-# Check Digit < Insert name > Library
+# checkdigit/retry
 
-The Check Digit < Insert Name >  library is a library for Check Digit services to deal with [ short description about what the library does]
-  
-  Features:
-* Feature 1
-* Feature 2
-* Feature3
-* (...)
+The `@checkdigit/retry` module implements the recommended Check Digit retry algorithm for idempotent distributed work.
 
+The default recommended behavior for production usage is to retry up to 8 times, with an exponential backoff
+of (2^attempts * 100) milliseconds per attempt.  This logic matches the
+[AWS recommended algorithm](https://docs.aws.amazon.com/general/latest/gr/api-retries.html).
 
+However, both the default waitRatio (100) and retries (8) can be overridden.  For
+test scenarios, it is useful to set the waitRatio to `0` to force immediate retries.
+
+If the number of allowable retries is exceeded, a RetryError is thrown with `retries` and `lastError` properties.
+
+**NOTE: this module assumes all work is idempotent, and can be retried multiple times without consequence.  If that is
+not the case, do not use this module.**
 
 ### Installing
 
-`npm install @checkdigit/< Insert name >` 
+`npm install @checkdigit/retry` 
 
 ### Use
-It could be. i.e.
-```
-import * as insertName from '@checkdigit/< Insert name >';
-
-const someVariable = insertName();
 
 ```
+import retry from '@checkdigit/retry';
 
-Or if it can be called as a script. i.e.
+// do some simple work, with the default of 8 retries and a wait ratio of 100.
+const worker = retry(async (item: string) => { ...idempotent network requests... });
+const result = await worker(someInput);
+
+// do some simple work, with a wait ratio of 0.  This means retries occur immediately, useful for test scenarios.
+const testWorker = retry(async (item: string) => { ...idempotent network requests... }, { waitRatio: 0 });
+const testResult = await testWorker(someTestInput);
+
+// catch a RetryError
+const errorWorker = retry(async (item: string) => { ...repeated failures... }, { waitRatio: 0 });
+try {
+  await errorWorker(someTestInput);
+} catch (error) {
+  if (error instanceof RetryError) {
+    console.log("failed after " + error.retries);
+    console.log(error.lastError);
+  }
+}
+
 ```
-insert-name -b src/package.json
+
+### Using with [`@checkdigit/timeout`](https://github.com/checkdigit/timeout)
+
+In most scenarios, it is recommended that this module is combined with
+[`@checkdigit/timeout`](https://github.com/checkdigit/timeout).
+
+```
+import retry from '@checkdigit/retry';
+import timeout from '@checkdigit/timeout';
+
+// wait up to 60 seconds on each attempt, retry on timeout
+const worker = await retry((item) => timeout((async (input) => ...work...)(item)))
+const result = await worker(someInput);
 ```
 
+## License
 
-### Links
-
-* Company website: [your.website.url]
-* Npm: [npm.url]
-    
+MIT
