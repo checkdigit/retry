@@ -1,7 +1,7 @@
 // retry.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -16,7 +16,7 @@ export interface RetryOptions {
 }
 
 const MINIMUM_WAIT_RATIO = 0;
-const MAXIMUM_WAIT_RATIO = 60000;
+const MAXIMUM_WAIT_RATIO = 60_000;
 
 const MINIMUM_RETRIES = 0;
 const MAXIMUM_RETRIES = 64;
@@ -44,10 +44,10 @@ export default function <Input, Output>(
   { waitRatio = DEFAULT_OPTIONS.waitRatio, retries = DEFAULT_OPTIONS.retries }: RetryOptions = DEFAULT_OPTIONS
 ): (item: Input) => Promise<Output> {
   if (waitRatio < MINIMUM_WAIT_RATIO || waitRatio > MAXIMUM_WAIT_RATIO) {
-    throw RangeError(`waitRatio must be >= ${MINIMUM_WAIT_RATIO} and <= ${MAXIMUM_WAIT_RATIO}`);
+    throw new RangeError(`waitRatio must be >= ${MINIMUM_WAIT_RATIO} and <= ${MAXIMUM_WAIT_RATIO}`);
   }
   if (retries < MINIMUM_RETRIES || retries > MAXIMUM_RETRIES) {
-    throw RangeError(`retries must be >= ${MINIMUM_RETRIES} and <= ${MAXIMUM_RETRIES}`);
+    throw new RangeError(`retries must be >= ${MINIMUM_RETRIES} and <= ${MAXIMUM_RETRIES}`);
   }
 
   return (item) =>
