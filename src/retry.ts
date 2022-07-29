@@ -68,7 +68,7 @@ export default function <Input, Output>(
             Math.ceil(Math.random() * (2 ** (attempts - 1) * waitRatio))
           : // wait for (2^retries * waitRatio) milliseconds (per AWS recommendation)
             2 ** (attempts - 1) * waitRatio;
-        log(`attempt ${attempts}, waiting for ${waitTime}ms)`);
+        log(`attempt ${attempts}, waiting for ${waitTime}ms, jitter: ${jitter.toString()}`);
         await new Promise((resolve) => {
           setTimeout(resolve, waitTime);
         });
