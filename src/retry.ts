@@ -35,7 +35,10 @@ export class RetryError extends Error {
 }
 
 /**
- * Implementation of recommended Check Digit retry algorithm.
+ * Implementation of recommended Check Digit retry algorithm.  For more details, see AWS documentation for background:
+ * - https://docs.aws.amazon.com/general/latest/gr/api-retries.html
+ * - https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+ * Note: unlike the basic algorithm outlined by AWS, this implementation does not cap the retry sleep time.
  *
  * @param retryable
  * @param waitRatio how much to multiply 2^attempts by
