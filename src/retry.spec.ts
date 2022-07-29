@@ -8,27 +8,27 @@
 
 import assert from 'node:assert';
 
-import retry, { RetryError } from './retry';
+import retry, { RetryError } from './index';
+
+function work(
+  waiter: (callback: (...argumentList: unknown[]) => void, ...argumentList: unknown[]) => void,
+  errorNumber = 0
+) {
+  let errorCount = 0;
+  return (value: unknown) =>
+    new Promise((resolve, reject) => {
+      if (errorCount < errorNumber) {
+        errorCount++;
+        waiter(() => reject(new Error(`Error ${errorCount}/${errorNumber}`)));
+      } else {
+        waiter(() => resolve(value));
+      }
+    });
+}
+
+const nextTick = process.nextTick.bind(process);
 
 describe('retry', () => {
-  function work(
-    waiter: (callback: (...arguments_: unknown[]) => void, ...arguments_: unknown[]) => void,
-    errorNumber = 0
-  ) {
-    let errorCount = 0;
-    return (value: unknown) =>
-      new Promise((resolve, reject) => {
-        if (errorCount < errorNumber) {
-          errorCount++;
-          waiter(() => reject(new Error(`Error ${errorCount}/${errorNumber}`)));
-        } else {
-          waiter(() => resolve(value));
-        }
-      });
-  }
-
-  const nextTick = process.nextTick.bind(process);
-
   it('returns resolved value if item resolves', async () => {
     assert.equal(await retry(async (item: number) => item * 2)(8), 16);
 
@@ -103,7 +103,29 @@ describe('retry', () => {
           setTimeout(() => resolve(item), Math.floor(Math.random() * 10) + 1);
         })
     );
-    const results = await Promise.all(range.map(worker)); // ?.
+    const results = await Promise.all(range.map(worker));
     assert.deepEqual(results.sort(), range);
+  });
+
+  it('takes expected amount of time retrying, taking into account jitter', async () => {
+    const start = Date.now();
+    for (const _ of Array.from({ length: 22 }).keys()) {
+      assert.equal(await retry(work(nextTick, 8), { waitRatio: 1 })('abc'), 'abc');
+    }
+    const time = Date.now() - start;
+
+    // precise timing is impossible due to jitter, but this should take around 3 seconds on average (+- 20%)
+    assert.ok(time >= 2400);
+    assert.ok(time <= 3600);
+  });
+
+  it('takes expected amount of time retrying, no jitter', async () => {
+    const start = Date.now();
+    assert.equal(await retry(work(nextTick, 8), { waitRatio: 10, jitter: false })('abc'), 'abc');
+    const time = Date.now() - start;
+
+    // this should take at least 2550ms, allow 50ms overhead for nextTick etc
+    assert.ok(time >= 2550);
+    assert.ok(time <= 2600);
   });
 });

@@ -13,6 +13,7 @@ const log = debug('checkdigit:retry');
 export interface RetryOptions {
   waitRatio?: number;
   retries?: number;
+  jitter?: boolean;
 }
 
 const MINIMUM_WAIT_RATIO = 0;
@@ -24,6 +25,7 @@ const MAXIMUM_RETRIES = 64;
 const DEFAULT_OPTIONS: Required<RetryOptions> = {
   waitRatio: 100,
   retries: 8,
+  jitter: true,
 };
 
 export class RetryError extends Error {
@@ -38,10 +40,15 @@ export class RetryError extends Error {
  * @param retryable
  * @param waitRatio how much to multiply 2^attempts by
  * @param retries maximum number of retries before throwing a RetryError
+ * @param jitter add full jitter to retry wait time
  */
 export default function <Input, Output>(
   retryable: (item: Input) => Promise<Output>,
-  { waitRatio = DEFAULT_OPTIONS.waitRatio, retries = DEFAULT_OPTIONS.retries }: RetryOptions = DEFAULT_OPTIONS
+  {
+    waitRatio = DEFAULT_OPTIONS.waitRatio,
+    retries = DEFAULT_OPTIONS.retries,
+    jitter = DEFAULT_OPTIONS.jitter,
+  }: RetryOptions = DEFAULT_OPTIONS
 ): (item: Input) => Promise<Output> {
   if (waitRatio < MINIMUM_WAIT_RATIO || waitRatio > MAXIMUM_WAIT_RATIO) {
     throw new RangeError(`waitRatio must be >= ${MINIMUM_WAIT_RATIO} and <= ${MAXIMUM_WAIT_RATIO}`);
@@ -53,8 +60,11 @@ export default function <Input, Output>(
   return (item) =>
     (async function work(attempts = 0): Promise<Output> {
       if (attempts > 0) {
-        // wait for (2^attempts * waitRatio) milliseconds (per AWS recommendation)
-        const waitTime = 2 ** attempts * waitRatio;
+        const waitTime = jitter
+          ? // wait for (2^retries * waitRatio) milliseconds with full jitter (per AWS recommendation)
+            Math.ceil(Math.random() * (2 ** (attempts - 1) * waitRatio))
+          : // wait for (2^retries * waitRatio) milliseconds (per AWS recommendation)
+            2 ** (attempts - 1) * waitRatio;
         log(`attempt ${attempts}, waiting for ${waitTime}ms)`);
         await new Promise((resolve) => {
           setTimeout(resolve, waitTime);
