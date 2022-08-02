@@ -3,10 +3,11 @@
 The `@checkdigit/retry` module implements the recommended Check Digit retry algorithm for idempotent distributed work.
 
 The default recommended behavior for production usage is to retry up to 8 times, with an exponential backoff
-of (2^attempts * 100) milliseconds per attempt.  This logic matches the
-[AWS recommended algorithm](https://docs.aws.amazon.com/general/latest/gr/api-retries.html).
+of (2^retries * 100) milliseconds per retry **with full jitter**.  This logic matches the
+[AWS recommended algorithm](https://docs.aws.amazon.com/general/latest/gr/api-retries.html) and
+[AWS exponential backoff and jitter doc]( https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/).
 
-However, both the default waitRatio (100) and retries (8) can be overridden.  For
+However, both the default waitRatio (100), retries (8), and jitter (true) can be overridden.  For
 test scenarios, it is useful to set the waitRatio to `0` to force immediate retries.
 
 If the number of allowable retries is exceeded, a RetryError is thrown with `retries` and `lastError` properties.
@@ -46,7 +47,7 @@ try {
 
 ### Using with [`@checkdigit/timeout`](https://github.com/checkdigit/timeout)
 
-In most scenarios, it is recommended that this module is combined with
+In some scenarios, it is recommended that this module is combined with
 [`@checkdigit/timeout`](https://github.com/checkdigit/timeout).
 
 ```
