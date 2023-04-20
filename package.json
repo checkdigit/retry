@@ -49,5 +49,9 @@
     "extends": [
       "@checkdigit/eslint-config"
     ]
-  }
+  },
+  "files": [
+    "dist",
+    "SECURITY.md"
+  ]
 }

@@ -5,7 +5,7 @@
 These versions of `@checkdigit/retry` are currently being supported with security updates.
 
 | Version | Supported          |
-|---------| ------------------ |
+| ------- | ------------------ |
 | \>= 3.0 | :white_check_mark: |
 | \< 3.0  | :x:                |
 
