@@ -8,13 +8,10 @@
 
 import debug from 'debug';
 
-const log = debug('checkdigit:retry');
+import { RetryError } from './error';
+import type { RetryOptions } from './options';
 
-export interface RetryOptions {
-  waitRatio?: number;
-  retries?: number;
-  jitter?: boolean;
-}
+const log = debug('checkdigit:retry');
 
 const MINIMUM_WAIT_RATIO = 0;
 const MAXIMUM_WAIT_RATIO = 60_000;
@@ -28,12 +25,6 @@ const DEFAULT_OPTIONS: Required<RetryOptions> = {
   jitter: true,
 };
 
-export class RetryError extends Error {
-  constructor(public retries: number, public lastError: Error) {
-    super(`Maximum retries (${retries}) exceeded`);
-  }
-}
-
 /**
  * Implementation of recommended Check Digit retry algorithm.  For more details, see AWS documentation for background:
  * - https://docs.aws.amazon.com/general/latest/gr/api-retries.html
@@ -46,13 +37,13 @@ export class RetryError extends Error {
  * @param jitter add full jitter to retry wait time
  */
 export default function <Input, Output>(
-  retryable: (item: Input) => Promise<Output>,
+  retryable: (item: Input, attempt: number) => Promise<Output>,
   {
     waitRatio = DEFAULT_OPTIONS.waitRatio,
     retries = DEFAULT_OPTIONS.retries,
     jitter = DEFAULT_OPTIONS.jitter,
   }: RetryOptions = DEFAULT_OPTIONS
-): (item: Input) => Promise<Output> {
+): (item?: Input) => Promise<Output> {
   if (waitRatio < MINIMUM_WAIT_RATIO || waitRatio > MAXIMUM_WAIT_RATIO) {
     throw new RangeError(`waitRatio must be >= ${MINIMUM_WAIT_RATIO} and <= ${MAXIMUM_WAIT_RATIO}`);
   }
@@ -76,7 +67,7 @@ export default function <Input, Output>(
 
       const startTime = Date.now();
       try {
-        return await retryable(item);
+        return await retryable(item as Input, attempts);
       } catch (error: unknown) {
         if (attempts >= retries) {
           log(`retries (${retries}) exceeded`);

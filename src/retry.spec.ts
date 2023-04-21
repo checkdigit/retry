@@ -15,8 +15,9 @@ function work(
   errorNumber = 0
 ) {
   let errorCount = 0;
-  return (value: unknown) =>
-    new Promise((resolve, reject) => {
+  return (value: unknown, attempt: number) => {
+    assert.equal(errorCount, attempt);
+    return new Promise((resolve, reject) => {
       if (errorCount < errorNumber) {
         errorCount++;
         waiter(() => reject(new Error(`Error ${errorCount}/${errorNumber}`)));
@@ -24,11 +25,18 @@ function work(
         waiter(() => resolve(value));
       }
     });
+  };
 }
 
 const nextTick = process.nextTick.bind(process);
 
 describe('retry', () => {
+  it('returns resolved value if no value is passed', async () => {
+    assert.equal(await retry(async () => 123)(), 123);
+    assert.equal(await retry(async (input) => input)(), undefined);
+    assert.equal(await retry(async (_, attempt) => attempt)(), 0);
+  });
+
   it('returns resolved value if item resolves', async () => {
     assert.equal(await retry(async (item: number) => item * 2)(8), 16);
 

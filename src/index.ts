@@ -7,4 +7,5 @@
  */
 
 export { default } from './retry';
-export * from './retry';
+export { RetryError } from './error';
+export type { RetryOptions } from './options';
