@@ -1,12 +1,20 @@
 {
   "name": "@checkdigit/retry",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "description": "Implementation of the standard Check Digit retry algorithm",
-  "typings": "./dist/index.d.ts",
-  "main": "./dist/index.js",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist-types/index.d.ts",
+      "require": "./dist-cjs/index.cjs",
+      "import": "./dist-mjs/index.mjs",
+      "default": "./dist-mjs/index.mjs"
+    }
+  },
   "prettier": "@checkdigit/prettier-config",
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "repository": {
     "type": "git",
@@ -22,15 +30,17 @@
     "debug": "^4.3.4"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^7.8.0",
-    "@checkdigit/jest-config": "^2.2.1",
-    "@checkdigit/prettier-config": "^3.4.0",
-    "@checkdigit/typescript-config": "3.3.0",
-    "@types/debug": "^4.1.7"
+    "@checkdigit/eslint-config": "^8.0.0",
+    "@checkdigit/jest-config": "^3.0.0",
+    "@checkdigit/prettier-config": "^4.0.0",
+    "@checkdigit/typescript-config": "4.0.0",
+    "@types/debug": "^4.1.8"
   },
   "scripts": {
-    "preversion": "npm test",
-    "postversion": "git push && git push --tags",
+    "prepublishOnly": "npm run build:dist-types && npm run build:dist-cjs && npm run build:dist-esm",
+    "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
+    "build:dist-cjs": "rimraf dist-cjs && npx builder --type=commonjs --sourceMap --entryPoint=index.ts --outDir=dist-cjs --outFile=index.cjs",
+    "build:dist-esm": "rimraf dist-esm && npx builder --type=module --sourceMap --outDir=dist-mjs",
     "lint:fix": "eslint -f unix --ext .ts,.mts src --fix",
     "lint": "eslint -f unix --ext .ts,.mts src",
     "prettier": "prettier --ignore-path .gitignore --list-different .",
@@ -51,7 +61,18 @@
     ]
   },
   "files": [
-    "dist",
+    "src",
+    "dist-types",
+    "dist-cjs",
+    "dist-mjs",
+    "!src/**/*.test.ts",
+    "!src/**/*.spec.ts",
+    "!dist-types/**/*.test.d.ts",
+    "!dist-types/**/*.spec.d.ts",
+    "!dist-cjs/**/*.test.cjs",
+    "!dist-cjs/**/*.spec.cjs",
+    "!dist-mjs/**/*.test.mjs",
+    "!dist-mjs/**/*.spec.mjs",
     "SECURITY.md"
   ]
 }
