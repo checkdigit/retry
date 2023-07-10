@@ -9,9 +9,9 @@ env:
   CI: true
 
 jobs:
-  branchBuild:
+  coverage:
     runs-on: ubuntu-latest
-    name: Branch Build
+    name: Coverage
     strategy:
       matrix:
         node-version: [18.x]
