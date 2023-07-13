@@ -42,7 +42,7 @@ export default function <Input, Output>(
     waitRatio = DEFAULT_OPTIONS.waitRatio,
     retries = DEFAULT_OPTIONS.retries,
     jitter = DEFAULT_OPTIONS.jitter,
-  }: RetryOptions = DEFAULT_OPTIONS,
+  }: RetryOptions = DEFAULT_OPTIONS
 ): (item?: Input) => Promise<Output> {
   if (waitRatio < MINIMUM_WAIT_RATIO || waitRatio > MAXIMUM_WAIT_RATIO) {
     throw new RangeError(`waitRatio must be >= ${MINIMUM_WAIT_RATIO} and <= ${MAXIMUM_WAIT_RATIO}`);

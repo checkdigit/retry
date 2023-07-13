@@ -12,7 +12,7 @@ import retry, { RetryError } from './index';
 
 function work(
   waiter: (callback: (...argumentList: unknown[]) => void, ...argumentList: unknown[]) => void,
-  errorNumber = 0,
+  errorNumber = 0
 ) {
   let errorCount = 0;
   return (value: unknown, attempt: number) => {
@@ -51,9 +51,9 @@ describe('retry', () => {
     assert.equal(
       await retry(
         work((callback) => setTimeout(callback, 2), 8),
-        { waitRatio: 0 },
+        { waitRatio: 0 }
       )(123n),
-      123n,
+      123n
     );
   });
 
@@ -73,13 +73,13 @@ describe('retry', () => {
     assert.equal(await retry(work(nextTick, 0), { retries: 0, waitRatio: 0 })(1n), 1n);
     await assert.rejects(
       async () => retry(work(nextTick, 2), { retries: 0, waitRatio: 0 })(1n),
-      /^Error: Maximum retries \(0\) exceeded$/u,
+      /^Error: Maximum retries \(0\) exceeded$/u
     );
     assert.equal(await retry(work(nextTick, 0), { retries: 1, waitRatio: 0 })(1n), 1n);
     assert.equal(await retry(work(nextTick, 1), { retries: 1, waitRatio: 0 })(1n), 1n);
     await assert.rejects(
       async () => retry(work(nextTick, 2), { retries: 1, waitRatio: 0 })(1n),
-      /^Error: Maximum retries \(1\) exceeded$/u,
+      /^Error: Maximum retries \(1\) exceeded$/u
     );
   });
 
@@ -109,7 +109,7 @@ describe('retry', () => {
       (item) =>
         new Promise((resolve) => {
           setTimeout(() => resolve(item), Math.floor(Math.random() * 10) + 1);
-        }),
+        })
     );
     const results = await Promise.all(range.map(worker));
     assert.deepEqual(results.sort(), range);
