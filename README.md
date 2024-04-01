@@ -2,8 +2,9 @@
 
 The `@checkdigit/retry` module implements the recommended Check Digit retry algorithm for idempotent distributed work.
 
-The default recommended behavior for production usage is to retry up to 8 times, with an exponential backoff
-of (2^retries \* 100) milliseconds per retry **with full jitter**. This logic matches the
+The default recommended behavior for production usage is to retry up to eight times, with an exponential backoff
+of `(2^retries * 100)` milliseconds per retry **with full jitter**.
+This logic matches the
 [AWS recommended algorithm](https://docs.aws.amazon.com/general/latest/gr/api-retries.html) and
 [AWS exponential backoff and jitter doc](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/).
 
