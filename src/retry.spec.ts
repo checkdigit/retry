@@ -1,12 +1,14 @@
 // retry.spec.ts
 
 /*
- * Copyright (c) 2021-2023 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
+
+import { describe, it } from '@jest/globals';
 
 import retry, { RetryError } from './index';
 
@@ -71,36 +73,44 @@ describe('retry', () => {
 
   it('number of retries can be selected', async () => {
     assert.equal(await retry(work(nextTick, 0), { retries: 0, waitRatio: 0 })(1n), 1n);
-    await assert.rejects(
-      async () => retry(work(nextTick, 2), { retries: 0, waitRatio: 0 })(1n),
-      /^Error: Maximum retries \(0\) exceeded$/u,
-    );
+    await assert.rejects(async () => retry(work(nextTick, 2), { retries: 0, waitRatio: 0 })(1n), {
+      message: 'Maximum retries (0) exceeded',
+    });
     assert.equal(await retry(work(nextTick, 0), { retries: 1, waitRatio: 0 })(1n), 1n);
     assert.equal(await retry(work(nextTick, 1), { retries: 1, waitRatio: 0 })(1n), 1n);
-    await assert.rejects(
-      async () => retry(work(nextTick, 2), { retries: 1, waitRatio: 0 })(1n),
-      /^Error: Maximum retries \(1\) exceeded$/u,
-    );
+    await assert.rejects(async () => retry(work(nextTick, 2), { retries: 1, waitRatio: 0 })(1n), {
+      message: 'Maximum retries (1) exceeded',
+    });
   });
 
   it('throws RangeError on invalid waitRatio values', async () => {
-    const expectedRangeError = /^RangeError: waitRatio must be >= 0 and <= 60000$/u;
-    assert.throws(() => retry(work(nextTick), { waitRatio: -1 }), expectedRangeError);
+    assert.throws(() => retry(work(nextTick), { waitRatio: -1 }), {
+      name: 'RangeError',
+      message: 'waitRatio must be >= 0 and <= 60000',
+    });
     retry(work(nextTick));
     retry(work(nextTick), {});
     retry(work(nextTick), { waitRatio: 1 });
     retry(work(nextTick), { waitRatio: 60_000 });
-    assert.throws(() => retry(work(nextTick), { waitRatio: 60_001 }), expectedRangeError);
+    assert.throws(() => retry(work(nextTick), { waitRatio: 60_001 }), {
+      name: 'RangeError',
+      message: 'waitRatio must be >= 0 and <= 60000',
+    });
   });
 
   it('throws RangeError on invalid retries values', async () => {
-    const expectedRangeError = /^RangeError: retries must be >= 0 and <= 64$/u;
-    assert.throws(() => retry(work(nextTick), { retries: -1 }), expectedRangeError);
+    assert.throws(() => retry(work(nextTick), { retries: -1 }), {
+      name: 'RangeError',
+      message: 'retries must be >= 0 and <= 64',
+    });
     retry(work(nextTick));
     retry(work(nextTick), {});
     retry(work(nextTick), { retries: 1 });
     retry(work(nextTick), { retries: 64 });
-    assert.throws(() => retry(work(nextTick), { retries: 65 }), expectedRangeError);
+    assert.throws(() => retry(work(nextTick), { retries: 65 }), {
+      name: 'RangeError',
+      message: 'retries must be >= 0 and <= 64',
+    });
   });
 
   it('performs well in parallel', async () => {

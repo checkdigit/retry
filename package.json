@@ -1,19 +1,19 @@
 {
   "name": "@checkdigit/retry",
-  "version": "4.0.2",
+  "version": "5.0.0",
   "description": "Implementation of the standard Check Digit retry algorithm",
+  "type": "module",
   "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist-types/index.d.ts",
-      "require": "./dist-cjs/index.cjs",
       "import": "./dist-mjs/index.mjs",
       "default": "./dist-mjs/index.mjs"
     }
   },
   "prettier": "@checkdigit/prettier-config",
   "engines": {
-    "node": ">=18"
+    "node": ">=20.11"
   },
   "repository": {
     "type": "git",
@@ -29,25 +29,24 @@
     "debug": "^4.3.4"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^8.0.0",
-    "@checkdigit/jest-config": "^3.0.0",
-    "@checkdigit/prettier-config": "^4.0.0",
-    "@checkdigit/typescript-config": "4.0.0",
-    "@types/debug": "^4.1.8"
+    "@checkdigit/eslint-config": "^9.2.0",
+    "@checkdigit/jest-config": "^6.0.0",
+    "@checkdigit/prettier-config": "^5.3.0",
+    "@checkdigit/typescript-config": "7.0.1",
+    "@types/debug": "^4.1.12"
   },
   "scripts": {
-    "prepublishOnly": "npm run build:dist-types && npm run build:dist-cjs && npm run build:dist-esm",
+    "prepublishOnly": "npm run build:dist-types && npm run build:dist-mjs",
     "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
-    "build:dist-cjs": "rimraf dist-cjs && npx builder --type=commonjs --sourceMap --entryPoint=index.ts --outDir=dist-cjs --outFile=index.cjs",
-    "build:dist-esm": "rimraf dist-esm && npx builder --type=module --sourceMap --outDir=dist-mjs",
-    "lint:fix": "eslint -f unix --ext .ts,.mts src --fix",
-    "lint": "eslint -f unix --ext .ts,.mts src",
+    "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs && node dist-mjs/index.mjs",
+    "lint:fix": "eslint --ignore-path .gitignore . --fix",
+    "lint": "eslint --max-warnings 0 --ignore-path .gitignore .",
     "prettier": "prettier --ignore-path .gitignore --list-different .",
     "prettier:fix": "prettier --ignore-path .gitignore --write .",
     "test": "npm run ci:compile && npm run ci:test && npm run ci:lint && npm run ci:style",
     "ci:compile": "tsc --noEmit",
-    "ci:test": "jest --coverage=false",
-    "ci:coverage": "jest --coverage=true",
+    "ci:test": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=false",
+    "ci:coverage": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=true",
     "ci:lint": "npm run lint",
     "ci:style": "npm run prettier"
   },
@@ -62,14 +61,11 @@
   "files": [
     "src",
     "dist-types",
-    "dist-cjs",
     "dist-mjs",
     "!src/**/*.test.ts",
     "!src/**/*.spec.ts",
     "!dist-types/**/*.test.d.ts",
     "!dist-types/**/*.spec.d.ts",
-    "!dist-cjs/**/*.test.cjs",
-    "!dist-cjs/**/*.spec.cjs",
     "!dist-mjs/**/*.test.mjs",
     "!dist-mjs/**/*.spec.mjs",
     "SECURITY.md"
