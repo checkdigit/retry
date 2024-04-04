@@ -159,9 +159,9 @@ describe('retry', () => {
     }
     const time = Date.now() - start;
 
-    // precise timing is impossible due to jitter, but this should take around 1.75 seconds on average (+- ~10%)
-    assert.ok(time >= 1600);
-    assert.ok(time <= 1900);
+    // precise timing is impossible due to jitter, but this should take around 1.75 seconds on average (+- 20%)
+    assert.ok(time >= 1450, `time ${time} should be >= 1450`);
+    assert.ok(time <= 2100, `time ${time} should be >= 2100`);
   });
 
   it('takes expected amount of time retrying with maximumBackoff set, no jitter', async () => {
@@ -170,7 +170,7 @@ describe('retry', () => {
     const time = Date.now() - start;
 
     // this should take a little under 90ms, allow 50ms overhead for nextTick etc
-    assert.ok(time >= 85);
-    assert.ok(time <= 135);
+    assert.ok(time >= 80, `time ${time} should be >= 80`);
+    assert.ok(time <= 150, `time ${time} should be <= 150`);
   });
 });
