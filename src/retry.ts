@@ -19,17 +19,19 @@ const MAXIMUM_WAIT_RATIO = 60_000;
 const MINIMUM_RETRIES = 0;
 const MAXIMUM_RETRIES = 64;
 
+const MINIMUM_BACKOFF = 0;
+
 const DEFAULT_OPTIONS: Required<RetryOptions> = {
   waitRatio: 100,
   retries: 8,
   jitter: true,
+  maximumBackoff: Number.POSITIVE_INFINITY,
 };
 
 /**
  * Implementation of recommended Check Digit retry algorithm.  For more details, see AWS documentation for background:
  * - https://docs.aws.amazon.com/general/latest/gr/api-retries.html
  * - https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
- * Note: unlike the basic algorithm outlined by AWS, this implementation does not cap the retry sleep time.
  *
  * @param retryable
  * @param waitRatio how much to multiply 2^attempts by
@@ -42,6 +44,7 @@ export default function <Input, Output>(
     waitRatio = DEFAULT_OPTIONS.waitRatio,
     retries = DEFAULT_OPTIONS.retries,
     jitter = DEFAULT_OPTIONS.jitter,
+    maximumBackoff = DEFAULT_OPTIONS.maximumBackoff,
   }: RetryOptions = DEFAULT_OPTIONS,
 ): (item?: Input) => Promise<Output> {
   if (waitRatio < MINIMUM_WAIT_RATIO || waitRatio > MAXIMUM_WAIT_RATIO) {
@@ -50,15 +53,22 @@ export default function <Input, Output>(
   if (retries < MINIMUM_RETRIES || retries > MAXIMUM_RETRIES) {
     throw new RangeError(`retries must be >= ${MINIMUM_RETRIES} and <= ${MAXIMUM_RETRIES}`);
   }
+  if (maximumBackoff < MINIMUM_BACKOFF) {
+    throw new RangeError(`maximumBackoff must be >= ${MINIMUM_BACKOFF}`);
+  }
 
   return (item) =>
     (async function work(attempts = 0): Promise<Output> {
       if (attempts > 0) {
-        const waitTime = jitter
-          ? // wait for (2^retries * waitRatio) milliseconds with full jitter (per AWS recommendation)
-            Math.ceil(Math.random() * (2 ** (attempts - 1) * waitRatio))
-          : // wait for (2^retries * waitRatio) milliseconds (per AWS recommendation)
-            2 ** (attempts - 1) * waitRatio;
+        const waitTime = Math.min(
+          jitter
+            ? // wait for (2^retries * waitRatio) milliseconds with full jitter
+              Math.ceil(Math.random() * (2 ** (attempts - 1) * waitRatio))
+            : // wait for (2^retries * waitRatio) milliseconds
+              2 ** (attempts - 1) * waitRatio,
+          // cap the maximum wait time
+          maximumBackoff,
+        );
         log(`attempt ${attempts}, waiting for ${waitTime}ms, jitter: ${jitter.toString()}`);
         await new Promise((resolve) => {
           setTimeout(resolve, waitTime);
@@ -76,6 +86,7 @@ export default function <Input, Output>(
               retries,
               waitRatio,
               jitter,
+              maximumBackoff,
             },
             error,
           );
