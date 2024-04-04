@@ -67,8 +67,12 @@ describe('retry', () => {
       thrown = error;
     }
     assert.ok(thrown instanceof RetryError);
-    assert.deepEqual(thrown.retries, 8);
-    assert.deepEqual(thrown.lastError.message, 'Error 9/Infinity');
+    assert.deepEqual(thrown.options, {
+      retries: 8,
+      waitRatio: 0,
+      jitter: true,
+    });
+    assert.equal((thrown.cause as Error).message, 'Error 9/Infinity');
   });
 
   it('number of retries can be selected', async () => {

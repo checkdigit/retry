@@ -1,6 +1,6 @@
 {
   "name": "@checkdigit/retry",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "Implementation of the standard Check Digit retry algorithm",
   "type": "module",
   "sideEffects": false,

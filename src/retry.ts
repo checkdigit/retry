@@ -71,7 +71,14 @@ export default function <Input, Output>(
       } catch (error: unknown) {
         if (attempts >= retries) {
           log(`retries (${retries}) exceeded`);
-          throw new RetryError(retries, error as Error);
+          throw new RetryError(
+            {
+              retries,
+              waitRatio,
+              jitter,
+            },
+            error,
+          );
         }
         log(`attempt ${attempts} (fail in ${Date.now() - startTime}ms)`);
         return work(attempts + 1);

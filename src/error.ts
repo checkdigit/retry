@@ -6,11 +6,13 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
+import type { RetryOptions } from './options';
+
 export class RetryError extends Error {
   constructor(
-    public retries: number,
-    public lastError: Error,
+    public options: Required<RetryOptions>,
+    lastError: unknown,
   ) {
-    super(`Maximum retries (${retries}) exceeded`);
+    super(`Maximum retries (${options.retries}) exceeded`, { cause: lastError });
   }
 }
