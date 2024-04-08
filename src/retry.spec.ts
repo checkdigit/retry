@@ -67,8 +67,13 @@ describe('retry', () => {
       thrown = error;
     }
     assert.ok(thrown instanceof RetryError);
-    assert.deepEqual(thrown.retries, 8);
-    assert.deepEqual(thrown.lastError.message, 'Error 9/Infinity');
+    assert.deepEqual(thrown.options, {
+      retries: 8,
+      waitRatio: 0,
+      jitter: true,
+      maximumBackoff: Number.POSITIVE_INFINITY,
+    });
+    assert.equal((thrown.cause as Error).message, 'Error 9/Infinity');
   });
 
   it('number of retries can be selected', async () => {
@@ -145,5 +150,27 @@ describe('retry', () => {
     // this should take at least 2550ms, allow 50ms overhead for nextTick etc
     assert.ok(time >= 2550);
     assert.ok(time <= 2600);
+  });
+
+  it('takes expected amount of time retrying with maximumBackoff set, taking into account jitter', async () => {
+    const start = Date.now();
+    for (const _ of Array.from({ length: 22 }).keys()) {
+      assert.equal(await retry(work(nextTick, 8), { waitRatio: 1, maximumBackoff: 23 })('abc'), 'abc');
+    }
+    const time = Date.now() - start;
+
+    // precise timing is impossible due to jitter, but this should take around 1.75 seconds on average (+- 20%)
+    assert.ok(time >= 1450, `time ${time} should be >= 1450`);
+    assert.ok(time <= 2100, `time ${time} should be >= 2100`);
+  });
+
+  it('takes expected amount of time retrying with maximumBackoff set, no jitter', async () => {
+    const start = Date.now();
+    assert.equal(await retry(work(nextTick, 8), { waitRatio: 10, maximumBackoff: 10, jitter: false })('abc'), 'abc');
+    const time = Date.now() - start;
+
+    // this should take a little under 90ms, allow 50ms overhead for nextTick etc
+    assert.ok(time >= 80, `time ${time} should be >= 80`);
+    assert.ok(time <= 150, `time ${time} should be <= 150`);
   });
 });

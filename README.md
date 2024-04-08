@@ -8,10 +8,13 @@ This logic matches the
 [AWS recommended algorithm](https://docs.aws.amazon.com/general/latest/gr/api-retries.html) and
 [AWS exponential backoff and jitter doc](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/).
 
-However, both the default waitRatio (100), retries (8), and jitter (true) can be overridden. For
-test scenarios, it is useful to set the waitRatio to `0` to force immediate retries.
+However, both the default `waitRatio` (100), `retries` (8),
+`jitter` (true) and `maximumBackoff` (+Infinity) can be overridden.
+For test scenarios, it is useful to set the `waitRatio` to `0` to force immediate retries.
 
-If the number of allowable retries is exceeded, a RetryError is thrown with `retries` and `lastError` properties.
+If the number of allowable retries is exceeded,
+a `RetryError` is thrown with the `options` property set to the input options,
+and `cause` set to the error thrown on the last retry attempt.
 
 **NOTE: this module assumes all work is idempotent, and can be retried multiple times without consequence. If that is
 not the case, do not use this module.**
@@ -39,8 +42,8 @@ try {
   await errorWorker(someTestInput);
 } catch (error) {
   if (error instanceof RetryError) {
-    console.log("failed after " + error.retries);
-    console.log(error.lastError);
+    console.log("failed after " + error.options.retries);
+    console.log(error.cause);
   }
 }
 
