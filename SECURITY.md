@@ -6,8 +6,8 @@ These versions of `@checkdigit/retry` are currently being supported with securit
 
 | Version | Supported          |
 | ------- | ------------------ |
-| \>= 5.0 | :white_check_mark: |
-| \< 5.0  | :x:                |
+| \>= 7.0 | :white_check_mark: |
+| \< 7.0  | :x:                |
 
 ## Reporting a Vulnerability
 

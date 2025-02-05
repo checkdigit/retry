@@ -6,6 +6,6 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-export { default } from './retry';
-export { RetryError } from './error';
-export type { RetryOptions } from './options';
+export { default } from './retry.ts';
+export { RetryError } from './error.ts';
+export type { RetryOptions } from './options.ts';

@@ -8,8 +8,8 @@
 
 import debug from 'debug';
 
-import { RetryError } from './error';
-import type { RetryOptions } from './options';
+import { RetryError } from './error.ts';
+import type { RetryOptions } from './options.ts';
 
 const log = debug('checkdigit:retry');
 
@@ -29,7 +29,8 @@ const DEFAULT_OPTIONS: Required<RetryOptions> = {
 };
 
 /**
- * Implementation of recommended Check Digit retry algorithm.  For more details, see AWS documentation for background:
+ * Implementation of recommended Check Digit retry algorithm.
+ * For more details, see AWS documentation for more background:
  * - https://docs.aws.amazon.com/general/latest/gr/api-retries.html
  * - https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
  *
@@ -37,6 +38,7 @@ const DEFAULT_OPTIONS: Required<RetryOptions> = {
  * @param waitRatio how much to multiply 2^attempts by
  * @param retries maximum number of retries before throwing a RetryError
  * @param jitter add full jitter to retry wait time
+ * @param maximumBackoff maximum amount of wait time
  */
 export default function <Input, Output>(
   retryable: (item: Input, attempt: number) => Promise<Output>,
@@ -63,6 +65,7 @@ export default function <Input, Output>(
         const waitTime = Math.min(
           jitter
             ? // wait for (2^retries * waitRatio) milliseconds with full jitter
+              // eslint-disable-next-line sonarjs/pseudo-random
               Math.ceil(Math.random() * (2 ** (attempts - 1) * waitRatio))
             : // wait for (2^retries * waitRatio) milliseconds
               2 ** (attempts - 1) * waitRatio,
