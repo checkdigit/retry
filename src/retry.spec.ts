@@ -1,16 +1,15 @@
 // retry.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2025 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import retry, { RetryError } from './index';
+import retry, { RetryError } from './index.ts';
 
 function work(
   waiter: (callback: (...argumentList: unknown[]) => void, ...argumentList: unknown[]) => void,
@@ -118,15 +117,24 @@ describe('retry', () => {
     });
   });
 
+  it('throws RangeError on invalid maximumBackoff values', async () => {
+    assert.throws(() => retry(work(nextTick), { maximumBackoff: -1 }), {
+      name: 'RangeError',
+      message: 'maximumBackoff must be >= 0',
+    });
+  });
+
   it('performs well in parallel', async () => {
     const range = [...Array.from({ length: 100_000 }).keys()].map((index) => index.toString().padStart(5, '0'));
     const worker = retry(
       (item) =>
         new Promise((resolve) => {
+          // eslint-disable-next-line sonarjs/no-nested-functions
           setTimeout(() => resolve(item), Math.floor(Math.random() * 10) + 1);
         }),
     );
     const results = await Promise.all(range.map(worker));
+    // eslint-disable-next-line sonarjs/no-alphabetical-sort
     assert.deepEqual(results.sort(), range);
   });
 
@@ -147,7 +155,7 @@ describe('retry', () => {
     assert.equal(await retry(work(nextTick, 8), { waitRatio: 10, jitter: false })('abc'), 'abc');
     const time = Date.now() - start;
 
-    // this should take at least 2550ms, allow 50ms overhead for nextTick etc
+    // this should take at least 2550 ms, allow 50 ms overhead for nextTick etc.
     assert.ok(time >= 2550);
     assert.ok(time <= 2600);
   });
@@ -169,7 +177,7 @@ describe('retry', () => {
     assert.equal(await retry(work(nextTick, 8), { waitRatio: 10, maximumBackoff: 10, jitter: false })('abc'), 'abc');
     const time = Date.now() - start;
 
-    // this should take a little under 90ms, allow 50ms overhead for nextTick etc
+    // this should take a little under 90 ms, allow 50 ms overhead for nextTick etc.
     assert.ok(time >= 80, `time ${time} should be >= 80`);
     assert.ok(time <= 150, `time ${time} should be <= 150`);
   });

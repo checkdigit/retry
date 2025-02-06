@@ -1,7 +1,6 @@
 name: Check Published
 
 on:
-  workflow_dispatch:
   schedule:
     - cron: '14 18 * * *'
 
@@ -16,7 +15,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
       - name: Check Published
         uses: checkdigit/github-actions/check-published@main

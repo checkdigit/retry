@@ -1,62 +1,25 @@
 {
   "name": "@checkdigit/retry",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "Implementation of the standard Check Digit retry algorithm",
-  "type": "module",
+  "homepage": "https://github.com/checkdigit/retry#readme",
+  "bugs": {
+    "url": "https://github.com/checkdigit/retry/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/checkdigit/retry.git"
+  },
+  "license": "MIT",
+  "author": "Check Digit, LLC",
   "sideEffects": false,
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist-types/index.d.ts",
       "import": "./dist-mjs/index.mjs",
       "default": "./dist-mjs/index.mjs"
     }
-  },
-  "prettier": "@checkdigit/prettier-config",
-  "engines": {
-    "node": ">=20.11"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/checkdigit/retry.git"
-  },
-  "author": "Check Digit, LLC",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/checkdigit/retry/issues"
-  },
-  "homepage": "https://github.com/checkdigit/retry#readme",
-  "dependencies": {
-    "debug": "^4.3.4"
-  },
-  "devDependencies": {
-    "@checkdigit/eslint-config": "^9.2.0",
-    "@checkdigit/jest-config": "^6.0.0",
-    "@checkdigit/prettier-config": "^5.3.0",
-    "@checkdigit/typescript-config": "7.0.1",
-    "@types/debug": "^4.1.12"
-  },
-  "scripts": {
-    "prepublishOnly": "npm run build:dist-types && npm run build:dist-mjs",
-    "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
-    "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs && node dist-mjs/index.mjs",
-    "lint:fix": "eslint --ignore-path .gitignore . --fix",
-    "lint": "eslint --max-warnings 0 --ignore-path .gitignore .",
-    "prettier": "prettier --ignore-path .gitignore --list-different .",
-    "prettier:fix": "prettier --ignore-path .gitignore --write .",
-    "test": "npm run ci:compile && npm run ci:test && npm run ci:lint && npm run ci:style",
-    "ci:compile": "tsc --noEmit",
-    "ci:test": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=false",
-    "ci:coverage": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=true",
-    "ci:lint": "npm run lint",
-    "ci:style": "npm run prettier"
-  },
-  "jest": {
-    "preset": "@checkdigit/jest-config"
-  },
-  "eslintConfig": {
-    "extends": [
-      "@checkdigit/eslint-config"
-    ]
   },
   "files": [
     "src",
@@ -69,5 +32,35 @@
     "!dist-mjs/**/*.test.mjs",
     "!dist-mjs/**/*.spec.mjs",
     "SECURITY.md"
-  ]
+  ],
+  "scripts": {
+    "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs && node dist-mjs/index.mjs",
+    "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
+    "ci:compile": "tsc --noEmit",
+    "ci:coverage": "rimraf coverage && mkdir coverage && node --experimental-strip-types --test-timeout 600000 --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info --test \"src/**/*.spec.ts\"",
+    "ci:lint": "npm run lint",
+    "ci:style": "npm run prettier",
+    "ci:test": "node --disable-warning ExperimentalWarning --experimental-strip-types --test-timeout 600000 --test \"src/**/*.spec.ts\"",
+    "coverage": "node --disable-warning ExperimentalWarning --experimental-strip-types --test-timeout 600000 --experimental-test-coverage --test \"src/**/*.spec.ts\"",
+    "lint": "eslint --max-warnings 0 .",
+    "lint:fix": "eslint . --fix",
+    "prepublishOnly": "npm run build:dist-types && npm run build:dist-mjs",
+    "prettier": "prettier --ignore-path .gitignore --list-different .",
+    "prettier:fix": "prettier --ignore-path .gitignore --write .",
+    "test": "npm run ci:compile && npm run ci:test && npm run ci:lint && npm run ci:style"
+  },
+  "prettier": "@checkdigit/prettier-config",
+  "dependencies": {
+    "debug": "^4.4.0"
+  },
+  "devDependencies": {
+    "@checkdigit/eslint-config": "^11.0.5",
+    "@checkdigit/prettier-config": "^6.1.0",
+    "@checkdigit/typescript-config": "9.0.0",
+    "@types/debug": "^4.1.12",
+    "rimraf": "^6.0.1"
+  },
+  "engines": {
+    "node": ">=22.11"
+  }
 }
