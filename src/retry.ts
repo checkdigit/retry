@@ -66,12 +66,14 @@ export default function <Input, Output>(
   return (item) =>
     (async function work(attempts = 0): Promise<Output> {
       if (attempts > 0) {
+        // With the default 8 retries, the maximum total backoff is 25.5 seconds
+        // (approximately 12.75 seconds on average with full jitter), excluding execution time.
         const waitTime = Math.min(
           jitter
-            ? // wait for (2^retries * waitRatio) milliseconds with full jitter
+            ? // wait up to (2^(attempts - 1) * waitRatio) milliseconds with full jitter
               // eslint-disable-next-line sonarjs/pseudo-random
               Math.ceil(Math.random() * (2 ** (attempts - 1) * waitRatio))
-            : // wait for (2^retries * waitRatio) milliseconds
+            : // wait for (2^(attempts - 1) * waitRatio) milliseconds
               2 ** (attempts - 1) * waitRatio,
           // cap the maximum wait time
           maximumBackoff,
