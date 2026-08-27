@@ -1,7 +1,7 @@
 // retry.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -25,7 +25,7 @@ const DEFAULT_OPTIONS: Required<RetryOptions> = {
   waitRatio: 100,
   retries: 8,
   jitter: true,
-  maximumBackoff: Number.POSITIVE_INFINITY,
+  maximumBackoff: Infinity,
 };
 
 /**
@@ -50,10 +50,14 @@ export default function <Input, Output>(
   }: RetryOptions = DEFAULT_OPTIONS,
 ): (item?: Input) => Promise<Output> {
   if (waitRatio < MINIMUM_WAIT_RATIO || waitRatio > MAXIMUM_WAIT_RATIO) {
-    throw new RangeError(`waitRatio must be >= ${MINIMUM_WAIT_RATIO} and <= ${MAXIMUM_WAIT_RATIO}`);
+    throw new RangeError(
+      `waitRatio must be >= ${MINIMUM_WAIT_RATIO} and <= ${MAXIMUM_WAIT_RATIO}`,
+    );
   }
   if (retries < MINIMUM_RETRIES || retries > MAXIMUM_RETRIES) {
-    throw new RangeError(`retries must be >= ${MINIMUM_RETRIES} and <= ${MAXIMUM_RETRIES}`);
+    throw new RangeError(
+      `retries must be >= ${MINIMUM_RETRIES} and <= ${MAXIMUM_RETRIES}`,
+    );
   }
   if (maximumBackoff < MINIMUM_BACKOFF) {
     throw new RangeError(`maximumBackoff must be >= ${MINIMUM_BACKOFF}`);
@@ -72,7 +76,9 @@ export default function <Input, Output>(
           // cap the maximum wait time
           maximumBackoff,
         );
-        log(`attempt ${attempts}, waiting for ${waitTime}ms, jitter: ${jitter.toString()}`);
+        log(
+          `attempt ${attempts}, waiting for ${waitTime}ms, jitter: ${jitter.toString()}`,
+        );
         await new Promise((resolve) => {
           setTimeout(resolve, waitTime);
         });
