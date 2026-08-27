@@ -14,7 +14,7 @@ This logic matches the
 [AWS recommended algorithm](https://docs.aws.amazon.com/general/latest/gr/api-retries.html) and
 [AWS exponential backoff and jitter doc](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/).
 
-However, both the default `waitRatio` (100), `retries` (8),
+However, default `waitRatio` (100), `retries` (8),
 `jitter` (true) and `maximumBackoff` (+Infinity) can be overridden.
 For test scenarios, it is useful to set the `waitRatio` to `0` to force immediate retries.
 
